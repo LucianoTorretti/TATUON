@@ -78,12 +78,21 @@ export default function Landing() {
             className="relative"
           >
             <div className="grid grid-cols-2 gap-4">
-              {[101, 102, 103, 104].map((s, i) => (
+              {[
+                { src: '/images/portfolio/realismo-2.webp',   label: 'Realismo',    pos: 'object-top'    },
+                { src: '/images/portfolio/acuarela-1.webp',   label: 'Acuarela',    pos: 'object-top'    },
+                { src: '/images/portfolio/blackwork-1.webp',  label: 'Blackwork',   pos: 'object-center' },
+                { src: '/images/portfolio/geometrico-3.webp', label: 'Geométrico',  pos: 'object-center' },
+              ].map(({ src, label, pos }, i) => (
                 <div
-                  key={s}
-                  className={`overflow-hidden rounded-2xl shadow-card ${i % 2 ? 'translate-y-6' : ''}`}
+                  key={src}
+                  className={`aspect-[3/4] overflow-hidden rounded-2xl shadow-card ${i % 2 ? 'translate-y-6' : ''}`}
                 >
-                  <img src={`https://picsum.photos/seed/hero-${s}/400/520`} alt="Tatuaje" className="h-full w-full object-cover" />
+                  <img
+                    src={src}
+                    alt={`Tatuaje estilo ${label}`}
+                    className={`h-full w-full object-cover ${pos} transition-transform duration-700 hover:scale-105`}
+                  />
                 </div>
               ))}
             </div>

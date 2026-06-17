@@ -99,6 +99,7 @@ export const artistas = [
     biografia: 'Especialista en realismo en negro y gris con más de 8 años de trayectoria. Cada pieza es un proyecto único trabajado a partir de tus referencias.',
     estado_verificacion: VERIFICACION.VERIFICADO, resolucion_sanitaria_url: 'seremi_camilo_fuentes.pdf',
     flash_disponible: true, rating: 4.9, total_resenas: 124, instagram: '@camilo.ink',
+    portafolioCover: '/images/portfolio/realismo-1.webp',
   },
   {
     id_artista: 'u-art-2', nombre: 'Antonia Vera', avatar: avatar(31),
@@ -123,6 +124,7 @@ export const artistas = [
     biografia: 'Acuarela y geometría sagrada. Composiciones vibrantes que combinan trazo fino y manchas de color.',
     estado_verificacion: VERIFICACION.VERIFICADO, resolucion_sanitaria_url: 'seremi_fernanda_lillo.pdf',
     flash_disponible: true, rating: 5.0, total_resenas: 142, instagram: '@fer.watercolor',
+    portafolioCover: '/images/portfolio/acuarela-1.webp',
   },
   {
     id_artista: 'u-art-5', nombre: 'Diego Carrasco', avatar: avatar(15),

@@ -38,9 +38,9 @@ export default function PerfilArtista() {
 
       {/* Cover + cabecera */}
       <div className="overflow-hidden rounded-3xl border border-sand-200 bg-white">
-        <div className="relative h-40 sm:h-56">
-          <img src={cover} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
+        <div className="relative h-48 sm:h-64">
+          <img src={cover} alt="" className="h-full w-full object-cover object-top" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/65 via-ink/10 to-transparent" />
         </div>
         <div className="px-5 pb-5 sm:px-8">
           {/* Avatar sobresale de la foto de portada; nombre y CTA van abajo */}

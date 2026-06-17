@@ -9,7 +9,7 @@ import {
   reservas, pagos, resenas, notificaciones,
 } from '@/data/seedData'
 
-const SEED_FLAG = 'seeded:v1'
+const SEED_FLAG = 'seeded:v2'
 
 export const ensureSeed = () => {
   if (readValue(SEED_FLAG)) return

@@ -50,11 +50,17 @@ export const listArtistas = async (filtros = {}) => {
     )
   }
 
-  // Distancia geográfica (CU-02)
-  rows = rows.map((a) => ({
-    ...a,
-    distancia: origin && a.coords ? haversine(origin, a.coords) : null,
-  }))
+  // Distancia geográfica (CU-02) + portafolioCover para ArtistCard
+  rows = rows.map((a) => {
+    const cover = a.portafolioCover
+      ?? db.find(COLECCIONES.PORTAFOLIO, (p) => p.id_artista === a.id_artista)[0]?.url
+      ?? null
+    return {
+      ...a,
+      portafolioCover: cover,
+      distancia: origin && a.coords ? haversine(origin, a.coords) : null,
+    }
+  })
 
   if (sort === 'distancia') rows.sort((a, b) => (a.distancia ?? 1e9) - (b.distancia ?? 1e9))
   else if (sort === 'rating') rows.sort((a, b) => b.rating - a.rating)

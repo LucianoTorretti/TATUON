@@ -1,12 +1,16 @@
 import { useState } from 'react'
-import { Trash2, Maximize2, X } from 'lucide-react'
+import { Trash2, Maximize2, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Badge, EmptyState } from '@/components/ui'
 import { ImageIcon } from 'lucide-react'
-import { cn } from '@/lib/cn'
 
 export const PortfolioGrid = ({ items = [], editable, onRemove, filterEstilo }) => {
-  const [lightbox, setLightbox] = useState(null)
+  const [lightboxIdx, setLightboxIdx] = useState(null)
   const filtered = filterEstilo ? items.filter((i) => i.estilo === filterEstilo) : items
+
+  const openLightbox = (idx) => setLightboxIdx(idx)
+  const closeLightbox = () => setLightboxIdx(null)
+  const prev = () => setLightboxIdx((i) => (i - 1 + filtered.length) % filtered.length)
+  const next = () => setLightboxIdx((i) => (i + 1) % filtered.length)
 
   if (!filtered.length) {
     return (
@@ -20,22 +24,25 @@ export const PortfolioGrid = ({ items = [], editable, onRemove, filterEstilo }) 
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {filtered.map((item) => (
+      {/* Masonry con CSS columns — respeta las proporciones reales de cada imagen */}
+      <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
+        {filtered.map((item, idx) => (
           <div
             key={item.id}
-            className="group relative aspect-square overflow-hidden rounded-xl bg-sand-200"
+            className="group relative mb-3 break-inside-avoid overflow-hidden rounded-xl bg-sand-200 cursor-pointer"
+            onClick={() => openLightbox(idx)}
           >
             <img
               src={item.url}
               alt={item.titulo}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
             />
-            <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-ink/70 via-transparent to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100">
+            {/* Overlay al hacer hover */}
+            <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-ink/70 via-ink/10 to-transparent p-2.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <div className="flex justify-end gap-1.5">
                 <button
-                  onClick={() => setLightbox(item)}
+                  onClick={(e) => { e.stopPropagation(); openLightbox(idx) }}
                   className="rounded-lg bg-white/90 p-1.5 text-ink hover:bg-white"
                   aria-label="Ampliar"
                 >
@@ -43,7 +50,7 @@ export const PortfolioGrid = ({ items = [], editable, onRemove, filterEstilo }) 
                 </button>
                 {editable && (
                   <button
-                    onClick={() => onRemove(item.id)}
+                    onClick={(e) => { e.stopPropagation(); onRemove(item.id) }}
                     className="rounded-lg bg-clay-500/90 p-1.5 text-white hover:bg-clay-500"
                     aria-label="Eliminar"
                   >
@@ -51,21 +58,67 @@ export const PortfolioGrid = ({ items = [], editable, onRemove, filterEstilo }) 
                   </button>
                 )}
               </div>
-              <Badge tone="forest" size="sm" className="self-start bg-white/90">{item.estilo}</Badge>
+              <div className="flex items-center justify-between">
+                <Badge tone="forest" size="sm" className="bg-white/90 text-forest-700">{item.estilo}</Badge>
+                <span className="text-[10px] text-white/80">{item.titulo}</span>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {lightbox && (
+      {/* Lightbox con navegación */}
+      {lightboxIdx !== null && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 p-4 backdrop-blur-sm"
-          onClick={() => setLightbox(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/85 p-4 backdrop-blur-sm"
+          onClick={closeLightbox}
         >
-          <button className="absolute right-5 top-5 rounded-full bg-white/10 p-2 text-white" aria-label="Cerrar">
+          {/* Cerrar */}
+          <button
+            className="absolute right-5 top-5 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors"
+            onClick={closeLightbox}
+            aria-label="Cerrar"
+          >
             <X className="h-5 w-5" />
           </button>
-          <img src={lightbox.url} alt={lightbox.titulo} className="max-h-[85vh] max-w-full rounded-2xl object-contain" />
+
+          {/* Prev */}
+          {filtered.length > 1 && (
+            <button
+              className="absolute left-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 transition-colors"
+              onClick={(e) => { e.stopPropagation(); prev() }}
+              aria-label="Anterior"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+
+          {/* Imagen */}
+          <div className="flex flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={filtered[lightboxIdx].url}
+              alt={filtered[lightboxIdx].titulo}
+              className="max-h-[80vh] max-w-[88vw] rounded-2xl object-contain shadow-lift"
+            />
+            <div className="flex items-center gap-3">
+              <Badge tone="forest" size="sm" className="bg-white/15 text-white border-white/20">
+                {filtered[lightboxIdx].estilo}
+              </Badge>
+              <span className="text-sm text-white/70">{filtered[lightboxIdx].titulo}</span>
+              <span className="text-xs text-white/40">{lightboxIdx + 1} / {filtered.length}</span>
+            </div>
+          </div>
+
+          {/* Next */}
+          {filtered.length > 1 && (
+            <button
+              className="absolute right-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 transition-colors"
+              onClick={(e) => { e.stopPropagation(); next() }}
+              aria-label="Siguiente"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          )}
         </div>
       )}
     </>

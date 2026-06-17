@@ -15,24 +15,33 @@ export const ArtistCard = ({ artista }) => {
         to={`/artista/${artista.id_artista}`}
         className="group block overflow-hidden rounded-2xl border border-sand-200 bg-white shadow-soft transition-shadow hover:shadow-card"
       >
-        <div className="relative aspect-[16/10] overflow-hidden">
+        {/* Cover — object-top para que los tatuajes se vean desde arriba */}
+        <div className="relative h-44 overflow-hidden">
           <img
             src={cover}
             alt={`Trabajo de ${artista.nombre}`}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/50 to-transparent" />
+
+          {/* Badges sobre la imagen */}
           <div className="absolute left-3 top-3 flex gap-2">
             {artista.flash_disponible && (
-              <Badge tone="clay" icon={Zap} size="sm" className="bg-white/90">Flash</Badge>
+              <Badge tone="clay" icon={Zap} size="sm" className="bg-white/90 shadow-sm">Flash</Badge>
             )}
           </div>
           {artista.distancia != null && (
-            <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-ink">
-              <MapPin className="h-3 w-3" /> {formatDistance(artista.distancia)}
+            <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-ink shadow-sm">
+              <MapPin className="h-3 w-3 text-forest-600" /> {formatDistance(artista.distancia)}
             </span>
           )}
+
+          {/* Rating sobre gradiente inferior */}
+          <div className="absolute bottom-2.5 right-3 flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-xs font-semibold text-ink shadow-sm">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            {artista.rating > 0 ? artista.rating.toFixed(1) : '—'}
+          </div>
         </div>
 
         <div className="p-4">
@@ -41,14 +50,11 @@ export const ArtistCard = ({ artista }) => {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <h3 className="truncate font-semibold text-ink">{artista.nombre}</h3>
+                <VerificationBadge estado={artista.estado_verificacion} size="sm" />
               </div>
               <p className="flex items-center gap-1 text-xs text-ink-muted">
                 <MapPin className="h-3 w-3" /> {artista.comuna}
               </p>
-            </div>
-            <div className="flex items-center gap-1 text-sm font-semibold text-ink">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-              {artista.rating > 0 ? artista.rating.toFixed(1) : '—'}
             </div>
           </div>
 
@@ -63,7 +69,7 @@ export const ArtistCard = ({ artista }) => {
               <p className="text-[11px] text-ink-muted">Tarifa media</p>
               <p className="text-sm font-bold text-forest-700">{formatCLP(artista.tarifa_media)}</p>
             </div>
-            <VerificationBadge estado={artista.estado_verificacion} size="sm" />
+            <span className="text-xs text-ink-muted">{artista.total_resenas} reseñas</span>
           </div>
         </div>
       </Link>
