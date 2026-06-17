@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-sand-100 text-ink antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Tipografía de display */
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+
+  /* Foco accesible */
+  :focus-visible {
+    @apply outline-none ring-2 ring-forest-500 ring-offset-2 ring-offset-sand-100;
+  }
+
+  ::selection {
+    @apply bg-forest-500/20 text-forest-700;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply rounded-2xl border border-sand-200 bg-white shadow-soft;
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-sand-300 bg-white px-4 py-2.5 text-sm text-ink
+      placeholder:text-ink-muted transition focus:border-forest-500
+      focus:ring-2 focus:ring-forest-500/30 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .link-underline {
+    @apply relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-0
+      after:bg-forest-500 after:transition-all hover:after:w-full;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Animación del pin de "tu ubicación" en el mapa (HTML crudo de Leaflet) */
+@keyframes pulse {
+  0% { transform: scale(0.7); opacity: 0.6; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Leaflet — ajustes para el tema claro */
+.leaflet-container {
+  @apply rounded-2xl;
+  font-family: 'Inter', sans-serif;
+  z-index: 0;
+}
+.leaflet-popup-content-wrapper {
+  @apply rounded-xl shadow-card;
+}
+.leaflet-popup-content {
+  margin: 0.75rem 1rem;
+}
