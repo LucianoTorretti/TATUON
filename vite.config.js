@@ -10,6 +10,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  test: {
+    // supabase/tests usa su propio runner (npm run test:db)
+    include: ['src/**/*.test.{js,jsx}'],
+  },
   server: {
     port: 5173,
     open: true,

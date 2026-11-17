@@ -24,6 +24,7 @@ export const Input = forwardRef(
               error && 'border-clay-500 focus:border-clay-500 focus:ring-clay-500/30',
               className,
             )}
+            aria-invalid={error ? true : undefined}
             {...props}
           />
         </div>
@@ -48,6 +49,7 @@ export const Textarea = forwardRef(({ label, error, className, id, ...props }, r
         ref={ref}
         id={inputId}
         className={cn('input-base min-h-[110px] resize-y', error && 'border-clay-500', className)}
+        aria-invalid={error ? true : undefined}
         {...props}
       />
       {error && <p className="mt-1 text-xs font-medium text-clay-500">{error}</p>}
@@ -69,6 +71,7 @@ export const Select = forwardRef(({ label, error, children, className, id, ...pr
         ref={ref}
         id={inputId}
         className={cn('input-base appearance-none bg-white pr-9', error && 'border-clay-500', className)}
+        aria-invalid={error ? true : undefined}
         {...props}
       >
         {children}

@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { storage } from '@/services'
 import { ROLES, ROLE_HOME } from '@/lib/constants'
 import { COMUNAS } from '@/lib/geo'
+import { validateDatos, validateVerificacion, normalizePhone, LIMITES } from '@/lib/validation'
 import { cn } from '@/lib/cn'
 
 const roleOptions = [
@@ -36,29 +37,32 @@ export default function Register() {
 
   const needsDoc = rol === ROLES.ARTISTA || rol === ROLES.ESTUDIO
   const steps = needsDoc ? ['Rol', 'Datos', 'Verificación'] : ['Rol', 'Datos']
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  const set = (k, v) => {
+    setForm((f) => ({ ...f, [k]: v }))
+    setErrors(({ [k]: _omit, ...rest }) => rest) // limpiar el error al corregir
+  }
 
   const pickRole = (r) => {
     setRol(r)
     setStep(1)
   }
 
-  const validateDatos = () => {
-    const e = {}
-    if (form.nombre.trim().length < 3) e.nombre = 'Ingresa tu nombre completo.'
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = 'Correo no válido.'
-    if (form.password.length < 6) e.password = 'Mínimo 6 caracteres.'
+  // Muestra los errores y enfoca el primer campo inválido
+  const applyErrors = (e) => {
     setErrors(e)
-    return Object.keys(e).length === 0
+    const first = Object.keys(e)[0]
+    if (first) document.querySelector(`[name="${first}"]`)?.focus()
+    return !first
   }
 
   const next = () => {
-    if (step === 1 && !validateDatos()) return
-    if (step === 1 && !needsDoc) return doRegister()
+    if (!applyErrors(validateDatos(form))) return
+    if (!needsDoc) return doRegister()
     setStep(2)
   }
 
   const doRegister = async () => {
+    if (needsDoc && !applyErrors(validateVerificacion(form, rol))) return
     setLoading(true)
     try {
       let docUrl = null
@@ -80,14 +84,14 @@ export default function Register() {
         seremi_resolucion_url: rol === ROLES.ESTUDIO ? docUrl : undefined,
       }
       const user = await register({
-        nombre: form.nombre, email: form.email, password: form.password,
-        telefono: form.telefono, tipo_rol: rol, comuna: form.comuna, extra,
+        nombre: form.nombre.trim(), email: form.email.trim().toLowerCase(), password: form.password,
+        telefono: normalizePhone(form.telefono), tipo_rol: rol, comuna: form.comuna, extra,
       })
       toast.success('¡Cuenta creada con éxito!')
       navigate(ROLE_HOME[user.tipo_rol], { replace: true })
     } catch (err) {
       toast.error(err.message)
-      if (err.message.includes('correo')) {
+      if (err.code === 'EMAIL_TAKEN') {
         setErrors({ email: err.message })
         setStep(1)
       }
@@ -140,22 +144,25 @@ export default function Register() {
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
             className="space-y-4"
           >
-            <Input label={rol === ROLES.ESTUDIO ? 'Nombre del estudio' : 'Nombre completo'} icon={User}
+            <Input name="nombre" label={rol === ROLES.ESTUDIO ? 'Nombre del estudio' : 'Nombre completo'} icon={User}
               value={form.nombre} onChange={(e) => set('nombre', e.target.value)} error={errors.nombre}
+              autoComplete={rol === ROLES.ESTUDIO ? 'organization' : 'name'}
               placeholder={rol === ROLES.ESTUDIO ? 'Black Lotus Studio' : 'Tu nombre'} />
-            <Input label="Correo electrónico" type="email" icon={Mail}
+            <Input name="email" label="Correo electrónico" type="email" icon={Mail} autoComplete="email"
               value={form.email} onChange={(e) => set('email', e.target.value)} error={errors.email}
               placeholder="tucorreo@mail.cl" />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Teléfono" icon={Phone}
-                value={form.telefono} onChange={(e) => set('telefono', e.target.value)} placeholder="+56 9 ..." />
-              <Select label="Comuna" value={form.comuna} onChange={(e) => set('comuna', e.target.value)}>
+              <Input name="telefono" label="Teléfono" type="tel" icon={Phone} autoComplete="tel"
+                value={form.telefono} onChange={(e) => set('telefono', e.target.value)} error={errors.telefono}
+                placeholder="+56 9 1234 5678" />
+              <Select name="comuna" label="Comuna" value={form.comuna} error={errors.comuna}
+                onChange={(e) => set('comuna', e.target.value)}>
                 {COMUNAS.map((c) => <option key={c.nombre} value={c.nombre}>{c.nombre}</option>)}
               </Select>
             </div>
-            <Input label="Contraseña" type="password" icon={Lock}
+            <Input name="password" label="Contraseña" type="password" icon={Lock} autoComplete="new-password"
               value={form.password} onChange={(e) => set('password', e.target.value)} error={errors.password}
-              placeholder="Mínimo 6 caracteres" />
+              hint="Mínimo 8 caracteres, con letras y números." placeholder="••••••••" />
 
             <div className="flex gap-3 pt-2">
               <Button variant="ghost" onClick={() => setStep(0)}>
@@ -180,22 +187,28 @@ export default function Register() {
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-ink-soft">Estilos artísticos</label>
                   <StyleSelector value={form.estilos} onChange={(v) => set('estilos', v)} />
+                  {errors.estilos && <p role="alert" className="mt-1 text-xs font-medium text-clay-500">{errors.estilos}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Input label="Tarifa media (CLP)" type="number" icon={CircleDollarSign}
-                    value={form.tarifa_media} onChange={(e) => set('tarifa_media', e.target.value)} placeholder="80000" />
-                  <Input label="Instagram" icon={Instagram}
-                    value={form.instagram} onChange={(e) => set('instagram', e.target.value)} placeholder="@tu.usuario" />
+                  <Input name="tarifa_media" label="Tarifa media (CLP)" inputMode="numeric" icon={CircleDollarSign}
+                    value={form.tarifa_media} onChange={(e) => set('tarifa_media', e.target.value)}
+                    error={errors.tarifa_media} placeholder="80000" />
+                  <Input name="instagram" label="Instagram" icon={Instagram}
+                    value={form.instagram} onChange={(e) => set('instagram', e.target.value)}
+                    error={errors.instagram} placeholder="@tu.usuario" />
                 </div>
-                <Textarea label="Biografía" value={form.biografia}
+                <Textarea name="biografia" label="Biografía" value={form.biografia} error={errors.biografia}
+                  maxLength={LIMITES.BIO_MAX}
                   onChange={(e) => set('biografia', e.target.value)} placeholder="Cuéntale a tus clientes sobre tu trabajo…" />
               </>
             )}
             {rol === ROLES.ESTUDIO && (
               <>
-                <Input label="Dirección" icon={MapPin}
-                  value={form.direccion} onChange={(e) => set('direccion', e.target.value)} placeholder="Av. Providencia 1234" />
-                <Textarea label="Descripción del estudio" value={form.biografia}
+                <Input name="direccion" label="Dirección" icon={MapPin} autoComplete="street-address"
+                  value={form.direccion} onChange={(e) => set('direccion', e.target.value)}
+                  error={errors.direccion} placeholder="Av. Providencia 1234" />
+                <Textarea name="biografia" label="Descripción del estudio" value={form.biografia} error={errors.biografia}
+                  maxLength={LIMITES.BIO_MAX}
                   onChange={(e) => set('biografia', e.target.value)} placeholder="Boxes, equipamiento, ambiente…" />
               </>
             )}

@@ -62,7 +62,11 @@ export const register = async (payload) => {
   const { nombre, email, password, telefono, tipo_rol, comuna, extra = {} } = payload
 
   const exists = db.findOne(COLECCIONES.USUARIOS, (u) => u.email.toLowerCase() === email.trim().toLowerCase())
-  if (exists) throw new Error('Ya existe una cuenta con ese correo.')
+  if (exists) {
+    const err = new Error('Ya existe una cuenta con ese correo.')
+    err.code = 'EMAIL_TAKEN'
+    throw err
+  }
 
   const id = genId('u')
   const usuario = {
