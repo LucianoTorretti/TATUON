@@ -30,7 +30,7 @@ export const upload = async (path, file) => {
     // Si localStorage se llena, devolvemos el dataURL igual (sesión en memoria)
   }
   return {
-    url: dataUrl, // en Firebase real sería una URL https://...
+    url: dataUrl, // en Supabase sería una URL https://...
     ref: `${path}/${id}`,
     name: file.name,
     size: file.size,

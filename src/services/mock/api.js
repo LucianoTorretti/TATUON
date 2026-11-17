@@ -1,6 +1,6 @@
 // =============================================================
 // API de dominio (mock) — funciones que consumen las pantallas.
-// El adaptador Firebase replica estas mismas firmas.
+// El adaptador Supabase replica estas mismas firmas.
 // =============================================================
 import {
   COLECCIONES, ROLES, VERIFICACION, ESTADO_CITA, ESTADO_PAGO,

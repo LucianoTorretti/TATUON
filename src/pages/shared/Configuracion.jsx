@@ -90,7 +90,7 @@ export default function Configuracion() {
         <Card className="p-6">
           <h3 className="mb-1 font-semibold text-ink">Datos del prototipo</h3>
           <p className="mb-4 text-sm text-ink-muted">
-            Backend actual: <Badge tone="sand" size="sm">{BACKEND === 'mock' ? 'Simulado (localStorage)' : 'Firebase'}</Badge>.
+            Backend actual: <Badge tone="sand" size="sm">{BACKEND === 'mock' ? 'Simulado (localStorage)' : 'Supabase'}</Badge>.
             Puedes reiniciar el demo a su estado inicial.
           </p>
           <div className="flex flex-wrap gap-3">

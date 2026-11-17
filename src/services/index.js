@@ -1,19 +1,18 @@
 // =============================================================
-// Selector de adaptador de backend (mock | firebase)
+// Selector de adaptador de backend (mock | supabase)
 // Las pantallas SOLO importan desde aquí. Cambiar de backend es
 // transparente para la UI (arquitectura limpia y desacoplada).
 // =============================================================
 import * as mock from './mock'
-import * as firebase from './firebase'
+import * as supabase from './supabase'
 
-const USE_FIREBASE = import.meta.env.VITE_USE_FIREBASE === 'true'
+export const BACKEND = import.meta.env.VITE_BACKEND === 'supabase' ? 'supabase' : 'mock'
 
-const adapter = USE_FIREBASE ? firebase : mock
+const adapter = BACKEND === 'supabase' ? supabase : mock
 
 export const auth = adapter.auth
 export const storage = adapter.storage
 export const api = adapter.api
-export const BACKEND = USE_FIREBASE ? 'firebase' : 'mock'
 
 // Reset del demo (solo mock)
 export { resetSeed } from './mock/seed'
